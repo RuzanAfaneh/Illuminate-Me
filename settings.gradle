@@ -1,0 +1,2 @@
+rootProject.name='IlluminateMe'
+include ':app'
