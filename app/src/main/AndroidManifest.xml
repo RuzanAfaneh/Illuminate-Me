@@ -9,8 +9,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".BlindHomeActivity"></activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".SignupActivity"></activity>
+        <activity android:name=".MaleOrFemale" />
+        <activity android:name=".BlindOrVolunteerActivity" />
+        <activity android:name=".LogoutActivity" />
+        <activity android:name=".BlindHomeActivity" />
+        <activity
+            android:name=".HomeVolunteerActivity"
+            android:label="@string/title_activity_home_volunteer" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

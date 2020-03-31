@@ -9,5 +9,9 @@
 
     <string name="setting">Settings</string>
     <string name="cancel">Cancel</string>
+    <string name="title_activity_home_volunteer">HomeVolunteerActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 
 </resources>
