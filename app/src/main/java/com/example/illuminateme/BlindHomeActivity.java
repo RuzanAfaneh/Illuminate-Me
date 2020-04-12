@@ -52,7 +52,9 @@ public class BlindHomeActivity extends AppCompatActivity {
         callVolunteer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(BlindHomeActivity.this, MainActivity.class));
+                Intent intent = new Intent(BlindHomeActivity.this, MainActivity.class);
+                intent.putExtra("type", "blind");
+                startActivity(intent);
             }
         });
 

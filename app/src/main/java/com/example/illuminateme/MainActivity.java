@@ -2,18 +2,24 @@ package com.example.illuminateme;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
 
 import com.opentok.android.BaseVideoRenderer;
 import com.opentok.android.OpentokError;
@@ -48,8 +54,11 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("FieldCanBeLocal")
     private WebServiceCoordinator mWebServiceCoordinator;
 
+    RatingBar ratingBar;
     //
-    private ImageView closeVideoChatBtn;
+    private Button closeVideoChatBtnB;
+    private ImageView closeVideoChatBtnV;
+    private TextView rating;
 
     private Session mSession;
     private Publisher mPublisher;
@@ -57,32 +66,87 @@ public class MainActivity extends AppCompatActivity
 
     private FrameLayout mPublisherViewContainer;
     private FrameLayout mSubscriberViewContainer;
+    private String type = "";//blind
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
         Log.d(LOG_TAG, "onCreate");
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        // String tyype = getIntent().getStringExtra("tyype");
+        // Bundle extras = getIntent().getExtras();
 
+
+        String type = getIntent().getStringExtra("type");
+
+        super.onCreate(savedInstanceState);
+
+        if (type.equals("v")) {
+            setContentView(R.layout.mainactivityv);
+            Toast.makeText(MainActivity.this, type, Toast.LENGTH_SHORT).show();
+
+        } else if (type.equals("blind")) {
+            setContentView(R.layout.activity_main);
+            Toast.makeText(MainActivity.this, type, Toast.LENGTH_SHORT).show();
+
+        }
+        requestPermissions();
         // initialize view objects from your layout
         mPublisherViewContainer = findViewById(R.id.publisher_container);
         mSubscriberViewContainer = findViewById(R.id.subscriber_container);
 
-        requestPermissions();
+        closeVideoChatBtnB = findViewById(R.id.close_video_chat_btn);
 
-        closeVideoChatBtn = findViewById(R.id.close_video_chat_btn);
+        closeVideoChatBtnV = findViewById(R.id.close_video_chat_btnV);
+//        closeVideoChatBtnV.bringToFront();
 
-        closeVideoChatBtn.setOnClickListener(new View.OnClickListener() {
+        if (type.equals("blind")) {
+            closeVideoChatBtnB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mSession.disconnect();
-                startActivity(new Intent(MainActivity.this, BlindHomeActivity.class));
-            }
-        });
+//                 startActivity(new Intent(MainActivity.this, RateUserActivity.class));
+////
+////                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+////                    final View customView = getLayoutInflater().inflate(R.layout.activity_rate_user, null);
+////                    rating = findViewById(R.id.done);
+////                    builder.setView(customView);
+////                    builder.setCancelable(true);
+////                final AlertDialog alertdialog = builder.create();
+////                ratingBar = alertdialog.findViewById(R.id.ratingBar);
+////          //      ratingBar.setRating(userRankValue);
+////                    alertdialog.show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(
+                        new ContextThemeWrapper(MainActivity.this, R.style.AlertDialogCustom));
+                View layout = null;
+                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                layout = inflater.inflate(R.layout.activity_rate_user, null);
+                final RatingBar ratingBar = layout.findViewById(R.id.ratingBar);
+                builder.setTitle("Please Rate Your Volunteer");
+                builder.setMessage("");
+                builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Float value = ratingBar.getRating();
+                        Toast.makeText(MainActivity.this, "Rating is : " + value, Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(MainActivity.this, RateUserActivity.class));
 
-    }
+                    }
+                });
+
+                builder.setCancelable(false);
+                builder.setView(layout);
+                builder.show();
+
+
+                // builder.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor("FFFAF0");
+
+            }
+            });//click listener
+        }//blind close btn if
+
+    }// on creat
+
 
     /* Activity lifecycle methods */
 
@@ -202,22 +266,31 @@ public class MainActivity extends AppCompatActivity
         Log.d(LOG_TAG, "onConnected: Connected to session: " + session.getSessionId());
 
         // initialize Publisher and set this object to listen to Publisher events
+        //if(type.equals("blind")) {
         mPublisher = new Publisher.Builder(this).build();
         mPublisher.setPublisherListener(this);
 
         // set publisher video style to fill view
+        mPublisher.cycleCamera();
+
+        closeVideoChatBtnB.bringToFront();
+
         mPublisher.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE,
                 BaseVideoRenderer.STYLE_VIDEO_FILL);
         mPublisherViewContainer.addView(mPublisher.getView());
+        closeVideoChatBtnB.bringToFront();
+
         if (mPublisher.getView() instanceof GLSurfaceView) {
             ((GLSurfaceView) mPublisher.getView()).setZOrderOnTop(true);
         }
 
         mSession.publish(mPublisher);
+
     }
 
     @Override
     public void onDisconnected(Session session) {
+
 
         Log.d(LOG_TAG, "onDisconnected: Disconnected from session: " + session.getSessionId());
     }

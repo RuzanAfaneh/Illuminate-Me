@@ -10,11 +10,10 @@ public class OpenTokConfig {
     // Replace with your OpenTok API key
     public static final String API_KEY = "46605692";
     // Replace with a generated Session ID
-    public static final String SESSION_ID = "2_MX40NjYwNTY5Mn5-MTU4NTQ5NTk0Njg3N343ZThMQUp1RGhUcUZpR09WTVl0TysvMXN-fg";
+    public static final String SESSION_ID = "1_MX40NjYwNTY5Mn5-MTU4NjM1ODk4NDMwMX4xNlRGdHhjUldqbDJDTnJjZ0liYVJxMlZ-fg";
     // Replace with a generated token (from the dashboard or using an OpenTok server SDK)
     public static final String TOKEN =
-            "T1==cGFydG5lcl9pZD00NjYwNTY5MiZzaWc9NGQ3YmZiNDBjMzZiNzc0MGQ4YjRkYTNmNDRjZWE3NWQwMTEwNTU3MDpzZXNzaW9uX2lkPTJfTVg0ME5qWXdOVFk1TW41LU1UVTROVFE1TlRrME5qZzNOMzQzWlRoTVFVcDFSR2hVY1VacFIwOVdUVmwwVHlzdk1YTi1mZyZjcmVhdGVfdGltZT0xNTg1NDk2MDQxJm5vbmNlPTAuNTIxNzYzNTc4MTUxNjg3OCZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNTg4MDg4MDQwJmluaXRpYWxfbGF5b3V0X2NsYXNzX2xpc3Q9";
-
+            "T1==cGFydG5lcl9pZD00NjYwNTY5MiZzaWc9Y2I3N2M1OGVjMmEzOTQyZjhkZTZiM2Y2ZGM3NDc5ODk4ZWQ5NmM2NzpzZXNzaW9uX2lkPTFfTVg0ME5qWXdOVFk1TW41LU1UVTROak0xT0RrNE5ETXdNWDR4TmxSR2RIaGpVbGRxYkRKRFRuSmpaMGxpWVZKeE1sWi1mZyZjcmVhdGVfdGltZT0xNTg2MzU5MDI1Jm5vbmNlPTAuNDk0OTM3MDQ5MjA0MjI3MSZyb2xlPXB1Ymxpc2hlciZleHBpcmVfdGltZT0xNTg4OTUxMDI1JmluaXRpYWxfbGF5b3V0X2NsYXNzX2xpc3Q9";
     /*                           ***** OPTIONAL *****
      If you have set up a server to provide session information replace the null value
      in CHAT_SERVER_URL with it.

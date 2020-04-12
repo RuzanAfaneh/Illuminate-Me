@@ -3,91 +3,59 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFAF0"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.AppCompat.Light.NoActionBar"
     tools:context=".BlindHomeActivity">
 
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="20dp"
-
-        android:text="First step"
-        android:textSize="20sp"
-
-        app:layout_constrainedWidth="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.029"
-        app:layout_editor_absoluteX="55dp" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="20dp"
-
-        android:text="choose who you are "
-        android:textSize="30sp"
-
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
     <Button
 
-        android:id="@+id/chooseVolunteer"
-        android:layout_width="280dp"
-        android:layout_height="100dp"
+        android:id="@+id/callVolunteer"
+        android:layout_width="335dp"
+        android:layout_height="333dp"
         android:layout_marginStart="20dp"
-
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="150dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="213dp"
+        android:layout_marginBottom="150dp"
         android:background="@drawable/rectangle"
 
-        android:text="volunteer"
-        android:textSize="30dp"
+        android:elegantTextHeight="true"
+        android:text="Press to call"
+        android:textAlignment="center"
+
+        android:textAllCaps="false"
+        android:textColor="#FFFAF0"
+        android:textSize="40sp"
 
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-
+        app:layout_constraintVertical_bias="1.0"
         app:layout_editor_absoluteX="55dp" />
 
-    <Button
+    <com.google.android.material.bottomnavigation.BottomNavigationView
 
-        android:id="@+id/chooseBlind"
-        android:layout_width="280dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="20dp"
 
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="213dp"
-        android:background="@drawable/rectangle"
-        android:text="Blind"
-        android:textSize="30dp"
-        app:layout_constrainedWidth="true"
+        android:id="@+id/nav_view"
+        android:layout_width="match_parent"
+
+        android:layout_height="60dp"
+        android:layout_marginTop="100dp"
+        android:background="#FFFAF0"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
+        android:theme="@style/BottomNavigationTheme"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.82"
-        app:layout_editor_absoluteX="55dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintVertical_bias="1"
+        app:menu="@menu/bottom_nav_menu" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

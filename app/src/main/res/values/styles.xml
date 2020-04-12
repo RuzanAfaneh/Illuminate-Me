@@ -1,11 +1,32 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/backgroundColor</item>
+        <!-- <item name="colorPrimaryDark">@color/colorPrimaryDark</item> -->
+        <item name="colorAccent">@color/purpelfont</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogCustom</item>
     </style>
 
+    <style name="BottomNavigationTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">#DA70D6</item>
+        <item name="android:textColorSecondary">@color/purpelfont</item>
+    </style>
+
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/purpelfont</item>
+        <item name="colorControlActivated">@color/purpelfont</item>
+    </style>
+
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@color/purpelfont</item>
+        <item name="colorAccent">@color/backgroundColor</item>>
+        <item name="colorPrimary">@color/purpelfont</item>
+        <item name="android:textColorPrimary">@color/purpelfont</item>
+        <item name="colorPrimaryDark">@color/purpelfont</item>
+        <item name="background">@color/backgroundColor</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:textSize">20sp</item>
+    </style>
 </resources>
