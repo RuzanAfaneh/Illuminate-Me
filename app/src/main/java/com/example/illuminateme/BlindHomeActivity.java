@@ -48,13 +48,17 @@ public class BlindHomeActivity extends AppCompatActivity {
         navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(navigationItemReselectedListener);
 
+        Intent intent = new Intent(BlindHomeActivity.this, FindVolunteerActivity.class);
+        intent.putExtra("type", "blind");
+
         callVolunteer = findViewById(R.id.callVolunteer);
         callVolunteer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(BlindHomeActivity.this, MainActivity.class);
-                intent.putExtra("type", "blind");
+
                 startActivity(intent);
+
+
             }
         });
 

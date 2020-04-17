@@ -78,7 +78,11 @@ public class SignupActivity extends AppCompatActivity {
                                     } else {
                                         String userId = mFirebaseAuth.getUid();
                                         writeNewUser(userId, type, name, gender);
-                                        startActivity(new Intent(SignupActivity.this, BlindHomeActivity.class));
+                                        if (type.equals("blind"))
+                                            startActivity(new Intent(SignupActivity.this, BlindHomeActivity.class));
+                                        else
+                                            startActivity(new Intent(SignupActivity.this, VolunteerHomeActivity.class));
+
                                     }
                                 }
                             });
@@ -99,12 +103,12 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void writeNewUser(String userId, String typee, String namee, String genderr) {
-        User user = new User(namee, genderr);
+        User user = new User(namee, genderr, "true", typee);
 
-        if (typee.equals("Blind"))
-            mDatebase.child("blindUser").child(userId).setValue(user);
-        else if (typee.equals("Volunteer"))
-            mDatebase.child("volunteerUser").child(userId).setValue(user);
-
+        // if (typee.equals("Blind"))
+        mDatebase.child("users").child(userId).setValue(user);
+        //  else if (typee.equals("Volunteer"))
+        //   mDatebase.child("volunteerUser").child(userId).setValue(user);
+//
     }
 }

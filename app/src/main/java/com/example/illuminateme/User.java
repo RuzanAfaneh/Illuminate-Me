@@ -3,23 +3,20 @@ package com.example.illuminateme;
 public class User {
     private String username;
     private String gender;
-    private boolean availability = true;
+    private String availability;
+    private String type;
 
     User() {
 
     }
 
-    User(String username, String gender) {
-        this.username = username;
-        this.gender = gender;
-//        this.availability = availability;
-    }
-
-    User(String username, String gender, boolean availability) {
+    User(String username, String gender, String availability, String type) {
         this.username = username;
         this.gender = gender;
         this.availability = availability;
+        this.type = type;
     }
+
 
     public String getUsername() {
         return username;
@@ -37,11 +34,22 @@ public class User {
         this.gender = gender;
     }
 
-    boolean getAvailability() {
+    public String getAvailability() {
         return availability;
     }
 
-    public void setAvailability(boolean availability) {
+    public void setAvailability(String availability) {
         this.availability = availability;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String username) {
+        this.type = type;
+    }
+
+
+
 }
