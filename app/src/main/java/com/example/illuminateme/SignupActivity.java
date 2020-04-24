@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+
 public class SignupActivity extends AppCompatActivity {
 
     EditText emailId, password, username;
@@ -107,8 +109,16 @@ public class SignupActivity extends AppCompatActivity {
 
         // if (typee.equals("Blind"))
         mDatebase.child("users").child(userId).setValue(user);
-        //  else if (typee.equals("Volunteer"))
-        //   mDatebase.child("volunteerUser").child(userId).setValue(user);
+
+        if (typee.equals("Volunteer")){
+            final HashMap<String, Object> map = new HashMap<>();
+            map.put("rating", "5");
+            map.put("numberOfCalls","0");
+            mDatebase.child("users").child(userId)
+                    .updateChildren(map);
+
+        }
+
 //
     }
 }

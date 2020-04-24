@@ -2,11 +2,13 @@ package com.example.illuminateme;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +37,10 @@ import com.opentok.android.Stream;
 import com.opentok.android.Subscriber;
 import com.opentok.android.SubscriberKit;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -55,6 +60,8 @@ public class MainActivity extends AppCompatActivity
     private static final int RC_SETTINGS_SCREEN_PERM = 123;
     private static final int RC_VIDEO_APP_PERM = 124;
 
+    private static final int REQUEST_CODE = 100;
+
     // Suppressing this warning. mWebServiceCoordinator will get GarbageCollected if it is local.
     @SuppressWarnings("FieldCanBeLocal")
     private WebServiceCoordinator mWebServiceCoordinator;
@@ -62,7 +69,8 @@ public class MainActivity extends AppCompatActivity
     RatingBar ratingBar;
     //
     private Button closeVideoChatBtn;
-    private TextView rating;
+    private String rating ,numberOfCalls;
+private  int num = 0 ;
 
     private Session mSession;
     private Publisher mPublisher;
@@ -72,8 +80,8 @@ public class MainActivity extends AppCompatActivity
     private FrameLayout mSubscriberViewContainer;
     private String type = "";//blind
 
-    private DatabaseReference userRef;
-    private String userID = "";
+    private DatabaseReference userRef , blind , volunteer;
+    private String userId , senderUserId = "" , receiverUserId ,checker="" ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,97 +94,175 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         requestPermissions();
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        userRef = FirebaseDatabase.getInstance().getReference().child("users");
         // initialize view objects from your layout
         mPublisherViewContainer = findViewById(R.id.publisher_container);
         mSubscriberViewContainer = findViewById(R.id.subscriber_container);
 
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        userRef = FirebaseDatabase.getInstance().getReference().child("users");
 
-        type = getIntent().getStringExtra("type");
+        senderUserId = getIntent().getStringExtra("senderUserId");
+        receiverUserId = getIntent().getStringExtra("receiverUserId");
 
 
-        if (type.equals("blind"))
-            mPublisherViewContainer.setVisibility(View.VISIBLE);
-        else {
-            mSubscriberViewContainer.setVisibility(View.VISIBLE);
-            mPublisherViewContainer.setVisibility(View.GONE);
+        if(userId.equals(senderUserId))
+        {
+            type = "blind";
+
+            System.out.println("blind blind blind "  + userId + "  "+ senderUserId );
+
+        }
+        else
+        {
+            type = "volunteer";
+
+            System.out.println("volunteer volunteer volunteer " + userId + "  "+ receiverUserId );
 
         }
 
+        if(receiverUserId.equals(userId)){
+        mSubscriberViewContainer.setVisibility(View.VISIBLE);
+        mPublisherViewContainer.setVisibility(View.GONE);}
+
+        else if(senderUserId.equals(userId))
+        {
+            mPublisherViewContainer.setVisibility(View.VISIBLE);
+            mSubscriberViewContainer.setVisibility(View.GONE);
+
+
+        }
+
+       // type = getIntent().getStringExtra("type");
+
+
+        volunteer = userRef.child(receiverUserId).child("Ringing");
+        blind = userRef.child(senderUserId).child("Calling");
+
+        //get Rating
+        userRef.child(receiverUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                rating = dataSnapshot.child("rating").getValue(String.class);
+                numberOfCalls = dataSnapshot.child("numberOfCalls").getValue(String.class);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         closeVideoChatBtn = findViewById(R.id.close_video_chat_btn);
 
+    closeVideoChatBtn.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            checker = "clicked";
 
-        closeVideoChatBtn.setOnClickListener(new View.OnClickListener() {
+            disconnectSession();
+
+            volunteer.removeValue();
+            blind.removeValue();
+
+
+            //startActivity(new Intent(MainActivity.this , LoginActivity.class));
+            //finish();;
+
+
+        }
+    });
+
+
+
+
+    }// on creat
+    private void disconnectSession() {
+
+        if (mSession == null) {
+            return;
+        }
+
+        if (mSubscriber != null) {
+            mSubscriberViewContainer.removeView(mSubscriber.getView());
+            mSession.unsubscribe(mSubscriber);
+            mSubscriber.destroy();
+            mSubscriber = null;
+        }
+
+        if (mPublisher != null) {
+            mPublisherViewContainer.removeView(mPublisher.getView());
+            mSession.unpublish(mPublisher);
+            mPublisher.destroy();
+            mPublisher = null;
+        }
+        mSession.disconnect();
+
+    }
+
+    @Override
+
+//Define an OnActivityResult method in our intent caller Activity//
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        userRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View view) {
-                userRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.child(userID).hasChild("Ringing")) {
-                            //remove the ringing chile
-                            userRef.child(userID).child("Ringing").removeValue();
-                            startActivity(new Intent(MainActivity.this, VolunteerHomeActivity.class));
-                            finish();
-                        }
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.child(receiverUserId).hasChild("Ringing") && !dataSnapshot.child(senderUserId).hasChild("Calling") && checker.equals("clicked")
+                        || !dataSnapshot.child(receiverUserId).hasChild("Ringing") && !dataSnapshot.child(senderUserId).hasChild("Calling")  ){
+                    disconnectSession();
 
-                        if (dataSnapshot.child(userID).hasChild("Calling")) {
-                            //remove the ringing chile
-                            userRef.child(userID).child("Calling").removeValue();
-                            startActivity(new Intent(MainActivity.this, BlindHomeActivity.class));
-                            finish();
-                        } else {
-                            if (type.equals("blind")) {
-                                startActivity(new Intent(MainActivity.this, BlindHomeActivity.class));
-                                finish();
-                            } else {
-                                startActivity(new Intent(MainActivity.this, VolunteerHomeActivity.class));
-                                finish();
-                            }
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    if(!checker.equals("clicked"))
+                    {
+                        volunteer.removeValue();
+                        blind.removeValue();
 
                     }
-                });
-                //Rating Dialoge
-                {
-                    if (type.equals("blind")) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(
-                                new ContextThemeWrapper(MainActivity.this, R.style.AlertDialogCustom));
-                        View layout = null;
-                        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        layout = inflater.inflate(R.layout.activity_rate_user, null);
-                        final RatingBar ratingBar = layout.findViewById(R.id.ratingBar);
-                        builder.setTitle("Please Rate Your Volunteer");
-                        builder.setMessage("");
-                        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                Float value = ratingBar.getRating();
-                                Toast.makeText(MainActivity.this, "Rating is : " + value, Toast.LENGTH_LONG).show();
-                                finish();
+                    if(type.equals("volunteer"))
+                    {
 
-                                startActivity(new Intent(MainActivity.this, BlindHomeActivity.class));
-                                finish();
+                        System.out.println("HRER NUMBER 7");
+                        startActivity(new Intent(MainActivity.this , VolunteerHomeActivity.class));
+                        //blind.removeValue();
+                        finish();
 
-                            }
-                        });
+                    }
+                    else if(type.equals("blind")  )
+                    {
 
-                        builder.setCancelable(false);
-                        builder.setView(layout);
-                        builder.show();
-                    }//blind if rating
 
+
+                        System.out.println("HRER NUMBER 5");
+                        Intent rate = new Intent(MainActivity.this , RateUserActivity.class);
+                        rate.putExtra("rating",rating);
+                        rate.putExtra("numberOfCalls",numberOfCalls);
+                        rate.putExtra("receiverUserId",receiverUserId);
+                        startActivity(rate);
+                        finish();
+
+                    }
                 }
 
 
-            }
-            });//click listener
-        //blind close btn if
 
-    }// on creat
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
 
 
     /* Activity lifecycle methods */
@@ -271,6 +357,7 @@ public class MainActivity extends AppCompatActivity
         mSession.connect(token);
     }
 
+
     /* Web Service Coordinator delegate methods */
 
     @Override
@@ -298,20 +385,20 @@ public class MainActivity extends AppCompatActivity
 
         // initialize Publisher and set this object to listen to Publisher events
 
-        mPublisher = new Publisher.Builder(this).build();
-        mPublisher.cycleCamera();
+            mPublisher = new Publisher.Builder(this).build();
+            mPublisher.cycleCamera();
 
-        mPublisher.setPublisherListener(this);
+            mPublisher.setPublisherListener(this);
 
-        // set publisher video style to fill view
+            // set publisher video style to fill view
 
-        mPublisher.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE,
-                BaseVideoRenderer.STYLE_VIDEO_FILL);
-        mPublisherViewContainer.addView(mPublisher.getView());
+            mPublisher.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE,
+                    BaseVideoRenderer.STYLE_VIDEO_FILL);
+            mPublisherViewContainer.addView(mPublisher.getView());
 
-        if (mPublisher.getView() instanceof GLSurfaceView) {
-            ((GLSurfaceView) mPublisher.getView()).setZOrderOnTop(true);
-        }
+            if (mPublisher.getView() instanceof GLSurfaceView) {
+                ((GLSurfaceView) mPublisher.getView()).setZOrderOnTop(true);
+            }
 
         mSession.publish(mPublisher);
     }
@@ -322,6 +409,9 @@ public class MainActivity extends AppCompatActivity
 
 
         Log.d(LOG_TAG, "onDisconnected: Disconnected from session: " + session.getSessionId());
+
+
+
     }
 
     @Override

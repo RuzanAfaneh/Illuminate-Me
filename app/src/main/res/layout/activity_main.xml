@@ -25,15 +25,17 @@
             android:id="@+id/publisher_container"
             android:layout_width="match_parent"
             android:layout_height="450dp"
-            android:visibility="invisible">
+            android:visibility="gone"
+            >
 
         </FrameLayout>
 
         <FrameLayout
             android:id="@+id/subscriber_container"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="450dp">
+            android:layout_height="450dp"
+            >
 
         </FrameLayout>
     </FrameLayout>

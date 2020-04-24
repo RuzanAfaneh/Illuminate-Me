@@ -7,6 +7,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,20 +27,25 @@ import java.util.HashMap;
 
 import static android.view.Gravity.TOP;
 import static androidx.constraintlayout.widget.ConstraintSet.BOTTOM;
+import static androidx.constraintlayout.widget.ConstraintSet.END;
+import static androidx.constraintlayout.widget.ConstraintSet.START;
 
 public class VolunteerAnswerActivity extends AppCompatActivity {
 
     private ImageView logoBtn;
+    private TextView msg ;
     private Button answerbtn, closebtn;
 
-    private String receiverUserId = "", receiverUserName = "";
-    private String senderUserId = "", senderUserName = "", checker = "";
-    private String callingID = "", ringingID = "";
+    private String receiverUserId = "";
+    private String senderUserId = "",  checker = "" , done="";
+//    private String callingID = "", ringingID = "";
 
-    private DatabaseReference userRef;
+    private DatabaseReference userRef , blind , volunteer , availability;
 
-    private String type = "";
+    private String type = "" , ava  ;
     private ConstraintLayout constraintLayout;
+
+    private Intent intent  ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,34 +57,94 @@ public class VolunteerAnswerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_volunteer_answer);
 
+         intent = new Intent(VolunteerAnswerActivity.this, MainActivity.class);
+
         senderUserId = FirebaseAuth.getInstance().getCurrentUser().getUid(); //blind person who is calling  we must get his id which is the current uesr . duh
 
-        //voulneet id which we get from (findVolunteerActivity) in casee of blind type
-        //otherwise we get it from start CheckforCall for the voulnteer
-        receiverUserId = getIntent().getStringExtra("volunteerId");
+        receiverUserId = getIntent().getStringExtra("receiverId");
 
         type = getIntent().getStringExtra("type");
 
         userRef = FirebaseDatabase.getInstance().getReference().child("users");
+        volunteer = userRef.child(receiverUserId).child("Ringing");
+       availability = userRef.child(receiverUserId).child("availability");
+        blind = userRef.child(senderUserId).child("Calling");
 
+
+        checker="";
 
         logoBtn = findViewById(R.id.button);
         closebtn = findViewById(R.id.cancel_call_V);
         answerbtn = findViewById(R.id.answer_call_V);
+msg = findViewById(R.id.textView3);
 
         constraintLayout = findViewById(R.id.constraint_layout);
 
-
         if (type.equals("blind")) {
-            answerbtn.setVisibility(View.INVISIBLE);
+            answerbtn.setVisibility(View.GONE);
+            msg.setText("Wait while we find someone to help");
             setnewConstraint();
+        }
+
+        else if(type.equals("volunteer")) {
+            answerbtn.setVisibility(View.VISIBLE);
+            //sender iser id
+            userRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.child(receiverUserId).hasChild("Ringing")){
+                        senderUserId = dataSnapshot.child(receiverUserId).child("Ringing").child("ringing").getValue(String.class);
+
+                    }}
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
 
         blouncingLogo();
 
+
+
+        closebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checker = "clicked";
+                if(type.equals("volunteer"))
+                {availability.setValue("false");};
+
+                //recivers  user id
+                userRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.child(senderUserId).hasChild("Calling")){
+                            receiverUserId = dataSnapshot.child(senderUserId).child("Calling").child("calling").getValue(String.class);
+                    }
+                }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+                volunteer = userRef.child(receiverUserId).child("Ringing");
+                blind = userRef.child(senderUserId).child("Calling");
+
+                volunteer.removeValue();
+                blind.removeValue();
+
+
+
+                //cancelUserCall();
+            }
+        });
+
         answerbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
 
                 stopService(new Intent(VolunteerAnswerActivity.this, SoundService.class));
 
@@ -91,36 +157,28 @@ public class VolunteerAnswerActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                    System.out.println("Type IS "+type + ",receiverUserId  " + receiverUserId+  senderUserId);
                                     intent.putExtra("type", type);
-                                    startActivity(intent);
+                                    intent.putExtra("receiverUserId",receiverUserId);
+                                    intent.putExtra("senderUserId",senderUserId);
+                                   startActivity(intent);
                                 }
                             }
                         });
 
-            }
-        });
 
-        closebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checker = "clicked";
-
-                stopService(new Intent(VolunteerAnswerActivity.this, SoundService.class));
-
-                cancelCallingUser();
 
             }
         });
 
-    }
+    }//on Create
 
-    private void setnewConstraint() {
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(constraintLayout);
-        constraintSet.setHorizontalBias(R.id.cancel_call_V, .0f);
-        constraintSet.connect(R.id.cancel_call_V, TOP, R.id.constraint_layout, BOTTOM);
-        constraintSet.applyTo(constraintLayout);
+    private void cancelUserCall() {
+
+            blind.removeValue();
+            volunteer.removeValue();
+
+
     }
 
     private void blouncingLogo() {
@@ -134,192 +192,53 @@ public class VolunteerAnswerActivity extends AppCompatActivity {
         logoBtn.startAnimation(myAnim);
     }//logo bounce
 
-
-    private void cancelCallingUser() {
-
-        //frome sender side
-        userRef.child(senderUserId)
-                .child("Calling")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                        if (dataSnapshot.exists() && dataSnapshot.hasChild("calling")) {
-
-                            callingID = dataSnapshot.child("calling").getValue().toString();
-
-                            userRef.child(callingID) //reciver id
-                                    .child("Ringing")
-                                    .removeValue()
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                userRef.child(senderUserId)
-                                                        .child("Calling")
-                                                        .removeValue()
-                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                {
-                                                                    if (type.equals("blind")) {
-                                                                        startActivity(new Intent(VolunteerAnswerActivity.this, BlindHomeActivity.class));
-                                                                        finish();
-                                                                    } else {
-                                                                        startActivity(new Intent(VolunteerAnswerActivity.this, VolunteerHomeActivity.class));
-
-                                                                    }
-                                                                }
-                                                            }
-                                                        });
-                                            } else {
-                                                System.out.println("NOT SUCCCCSUUUFFLFLLL");
-                                            }
-                                        }
-                                    });
-                        } else {
-                            if (type.equals("blind")) {
-                                startActivity(new Intent(VolunteerAnswerActivity.this, BlindHomeActivity.class));
-                                finish();
-                            } else {
-                                startActivity(new Intent(VolunteerAnswerActivity.this, VolunteerHomeActivity.class));
-
-                            }
-                        }
-                    }
-
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
-
-        //from reciver side
-        {
-            userRef.child(senderUserId)
-                    .child("Ringing")
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists() && dataSnapshot.hasChild("ringing")) {
-                                ringingID = dataSnapshot.child("ringing").getValue().toString();
-
-                                userRef.child(ringingID)
-                                        .child("Calling")
-                                        .removeValue()
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    userRef.child(senderUserId)
-                                                            .child("Ringing")
-                                                            .removeValue()
-                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                    {
-                                                                        if (type.equals("blind")) {
-                                                                            startActivity(new Intent(VolunteerAnswerActivity.this, BlindHomeActivity.class));
-                                                                            finish();
-                                                                        } else {
-                                                                            startActivity(new Intent(VolunteerAnswerActivity.this, VolunteerHomeActivity.class));
-
-                                                                        }
-                                                                    }
-                                                                }
-                                                            });
-                                                }
-                                            }
-                                        });
-                            } else {
-                                if (type.equals("blind")) {
-                                    startActivity(new Intent(VolunteerAnswerActivity.this, BlindHomeActivity.class));
-                                    finish();
-                                } else {
-                                    startActivity(new Intent(VolunteerAnswerActivity.this, VolunteerHomeActivity.class));
-
-                                }
-                            }
-                        }
-
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-        }
-
-
-    }
-
-
-    protected void onDestroy() {
-        //stop service and stop music
-        stopService(new Intent(VolunteerAnswerActivity.this, SoundService.class));
-        super.onDestroy();
-    }
+    private void setnewConstraint() {
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(constraintLayout);
+        constraintSet.setHorizontalBias(R.id.cancel_call_V, .0f);
+        //constraintSet.connect(R.id.cancel_call_V, END, R.id.constraint_layout, START);
+        constraintSet.applyTo(constraintLayout);
+    } //set on Constarint
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        userRef.child(receiverUserId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        //check if the user is not busy
-                        if (!checker.equals("clicked") && !dataSnapshot.hasChild("calling") && !dataSnapshot.hasChild("Ringing")) {
-                            final HashMap<String, Object> callingInfo = new HashMap<>();
-                            callingInfo.put("calling", receiverUserId); //is calling gthis
-                            //TODO maybe add call history hhere
 
-                            //sender is the online user who is going to make the call
-                            //sender is calling . so we add the info for the first hashmap
-
-                            userRef.child(senderUserId).child("Calling")
-                                    .updateChildren(callingInfo)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                //the person whos hone is ringing
-                                                final HashMap<String, Object> ringingInfo = new HashMap<>();
-                                                ringingInfo.put("ringing", senderUserId); //is calling gthis
-
-                                                //TODO maybe add call history hhere
-
-
-                                                userRef.child(receiverUserId).child("Ringing")
-                                                        .updateChildren(ringingInfo);
-                                            }
-                                        }
-                                    });
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
 
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                if (!dataSnapshot.child(senderUserId).hasChild("Calling") && dataSnapshot.child(senderUserId).hasChild("Ringing")) {
-                    answerbtn.setVisibility(View.VISIBLE);
-                }
-                if (dataSnapshot.child(receiverUserId).child("Ringing").hasChild("picked")) {
+                if(!dataSnapshot.child(receiverUserId).hasChild("Ringing") && !dataSnapshot.child(senderUserId).hasChild("Calling") && checker.equals("clicked")
+                || !dataSnapshot.child(receiverUserId).hasChild("Ringing") && !dataSnapshot.child(senderUserId).hasChild("Calling")  ){
                     stopService(new Intent(VolunteerAnswerActivity.this, SoundService.class));
 
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.putExtra("type", type);
-                    startActivity(intent);
+                    if(!checker.equals("clicked"))
+                    {
+                        volunteer.removeValue();
+                        blind.removeValue();
+
+                    }
+                    if(type.equals("volunteer"))
+                    {
+
+                        System.out.println("HRER NUMBER 7");
+                        startActivity(new Intent(VolunteerAnswerActivity.this , VolunteerHomeActivity.class));
+                       //blind.removeValue();
+                        finish();
+
+                    }
+                    else if(type.equals("blind")  )
+                    {
+
+                        System.out.println("HRER NUMBER 5");
+                        startActivity(new Intent(VolunteerAnswerActivity.this , BlindHomeActivity.class));
+                        finish();
+
+                    }
                 }
+
+
 
             }
 
@@ -328,5 +247,57 @@ public class VolunteerAnswerActivity extends AppCompatActivity {
 
             }
         });
+
+
+
+        //on answer
+        userRef.addValueEventListener(new ValueEventListener() {
+
+            @Override
+
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+
+
+                if (dataSnapshot.child(receiverUserId).child("Ringing").hasChild("picked") && dataSnapshot.child(senderUserId).hasChild("Calling") &&type.equals("blind")) {
+
+                    stopService(new Intent(VolunteerAnswerActivity.this, SoundService.class));
+
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+
+                    intent.putExtra("receiverUserId", receiverUserId);
+                   intent.putExtra("senderUserId",senderUserId);
+                    intent.putExtra("type", type);
+
+                    startActivity(intent);
+
+                }
+
+
+
+            }
+
+
+
+            @Override
+
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+
+
+            }
+
+        });
+
+
+
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+
     }
 }

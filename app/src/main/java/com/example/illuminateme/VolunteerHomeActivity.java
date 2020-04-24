@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.RatingBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -25,8 +26,12 @@ public class VolunteerHomeActivity extends AppCompatActivity {
     private Switch avaSwitch;
 
     private DatabaseReference userRef;
-    private String userId, getUserName, checked = "";
+    private String userId, getUserName, checked = "" ;
     private String calledBy = "";
+
+    private float rating;
+    private RatingBar ratingBar ;
+
 
     private BottomNavigationView navView;
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemReselectedListener =
@@ -66,42 +71,35 @@ public class VolunteerHomeActivity extends AppCompatActivity {
         callVolunteer = findViewById(R.id.choosevolunteer);
         username = findViewById(R.id.volunteer_username);
         avaSwitch = findViewById(R.id.availabilitySwitch);
+        ratingBar = findViewById(R.id.ratingBar);
 
         userRef = FirebaseDatabase.getInstance().getReference().child("users");
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         activiateSwitch();
         //checkSwitchState
+
         userRef.child(userId)
-                .child("availability")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        checked = dataSnapshot.getValue(String.class);
+
+                        //get the name
+                        getUserName = dataSnapshot.child("username").getValue(String.class);
+                        System.out.println(getUserName);
+                        username.setText(getUserName);
+
+                        //activiate the switch
+                        checked = dataSnapshot.child("availability").getValue(String.class);
                         if (checked.equals("true")) {
                             avaSwitch.setChecked(true);
                         } else {
                             avaSwitch.setChecked(false);
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
-
-        userRef.child(userId)
-                .child("username")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                        getUserName = dataSnapshot.getValue(String.class);
-                        System.out.println(getUserName);
-                        username.setText(getUserName);
-
+                        //getRating
+                        rating =  Float.parseFloat(dataSnapshot.child("rating").getValue(String.class));
+                        ratingBar.setRating(rating);
                     }
 
                     @Override
@@ -130,30 +128,56 @@ public class VolunteerHomeActivity extends AppCompatActivity {
     }
 
     @Override
+
     protected void onStart() {
+
         super.onStart();
+
         userRef.child(userId)
+
                 .child("Ringing")
+
                 .addValueEventListener(new ValueEventListener() {
+
                     @Override
+
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                         if (dataSnapshot.hasChild("ringing")) {
-                            calledBy = dataSnapshot.child("ringing").getValue().toString();
+
+                        //    calledBy = dataSnapshot.child("ringing").getValue().toString();
+
                             Intent i = new Intent(VolunteerHomeActivity.this, VolunteerAnswerActivity.class);
-                            i.putExtra("userId", calledBy);
-                            i.putExtra("volunteerId", userId);
+//
+            //                i.putExtra("userId", calledBy);
+
+                            i.putExtra("receiverId", userId);
+
                             i.putExtra("type", "volunteer");
 
+
+
                             startActivity(i);
+
                             finish();
+
                         }
 
+
+
                     }
+
+
 
                     @Override
+
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 
+
+
                     }
+
                 });
+
     }
 }

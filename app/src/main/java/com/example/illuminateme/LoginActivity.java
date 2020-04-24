@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-                if (mFirebaseUser != null) {
+                if (mFirebaseUser!=null) {
                     Toast.makeText(LoginActivity.this, "You are logged in", Toast.LENGTH_SHORT).show();
                     userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     typeValue = dataSnapshot.getValue(String.class);
 
-                                    if (typeValue.equals("Blind")) {
+                                if (typeValue.equals("Blind")) {
                                         Intent i = new Intent(LoginActivity.this, BlindHomeActivity.class);
                                         // i.putExtra("type","blind");
                                         startActivity(i);
@@ -83,6 +83,7 @@ public class LoginActivity extends AppCompatActivity {
                                         finish();
 
                                     }
+
 
                                 }
 
