@@ -11,26 +11,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity android:name=".SettingsActivity"></activity>
         <activity android:name=".FindVolunteerActivity" />
 
         <service
             android:name=".SoundService"
             android:enabled="true" />
 
-        <activity android:name=".VolunteerAnswerActivity"
-            android:noHistory="true"
-            />
+        <activity
+            android:name=".VolunteerAnswerActivity"
+            android:noHistory="true" />
         <activity android:name=".BlindHomeActivity" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".MaleOrFemale" />
-        <activity android:name=".RateUserActivity"/>
+        <activity android:name=".RateUserActivity" />
         <activity android:name=".BlindOrVolunteerActivity" />
         <activity android:name=".LogoutActivity" />
         <activity
             android:name=".VolunteerHomeActivity"
             android:label="@string/title_activity_home_volunteer" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".LoginActivity">
+        <activity android:name=".LoginActivity" android:theme="@style/SplashTheme">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

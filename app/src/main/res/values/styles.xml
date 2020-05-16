@@ -6,7 +6,12 @@
         <item name="colorPrimary">@color/backgroundColor</item>
         <!-- <item name="colorPrimaryDark">@color/colorPrimaryDark</item> -->
         <item name="colorAccent">@color/purpelfont</item>
-        <item name="android:alertDialogTheme">@style/AlertDialogCustom</item>
+
+    </style>
+
+    <style name="Theme_Dialog" parent="android:Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
     </style>
 
     <style name="BottomNavigationTheme" parent="Theme.AppCompat.Light">
@@ -17,16 +22,10 @@
     <style name="RatingBar" parent="Theme.AppCompat">
         <item name="colorControlNormal">@color/purpelfont</item>
         <item name="colorControlActivated">@color/purpelfont</item>
-    </style>
 
-    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColor">@color/purpelfont</item>
-        <item name="colorAccent">@color/backgroundColor</item>>
-        <item name="colorPrimary">@color/purpelfont</item>
-        <item name="android:textColorPrimary">@color/purpelfont</item>
-        <item name="colorPrimaryDark">@color/purpelfont</item>
-        <item name="background">@color/backgroundColor</item>
-        <item name="android:typeface">monospace</item>
-        <item name="android:textSize">20sp</item>
+
+    </style>
+         <style name="SplashTheme" parent="AppTheme">
+        <item name="android:windowBackground">@drawable/logo</item>
     </style>
 </resources>

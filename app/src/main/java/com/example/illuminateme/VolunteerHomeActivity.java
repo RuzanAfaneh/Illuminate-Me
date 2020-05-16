@@ -26,8 +26,8 @@ public class VolunteerHomeActivity extends AppCompatActivity {
     private Switch avaSwitch;
 
     private DatabaseReference userRef;
-    private String userId, getUserName, checked = "" ;
-    private String calledBy = "";
+    private String userId, getUserName, checked = ""  , type = "";
+
 
     private float rating;
     private RatingBar ratingBar ;
@@ -40,11 +40,14 @@ public class VolunteerHomeActivity extends AppCompatActivity {
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                     switch (menuItem.getItemId()) {
                         case R.id.navigation_home:
-                            startActivity(new Intent(VolunteerHomeActivity.this, BlindHomeActivity.class));
+                            startActivity(new Intent(VolunteerHomeActivity.this, VolunteerHomeActivity.class));
                             break;
 
                         case R.id.navigation_settings:
-                            //   startActivity(new Intent(BlindHomeActivity.this,SettingsActivity.class));
+                            type = "volunteer";
+                            Intent i = new Intent(VolunteerHomeActivity.this, SettingsActivity.class);
+                            i.putExtra("type" , type );
+                            startActivity(i);
                             break;
 
                         case R.id.navigation_logout:

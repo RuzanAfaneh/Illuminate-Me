@@ -14,7 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class BlindHomeActivity extends AppCompatActivity {
     private Button callVolunteer;
 
-    private String senderUserId;
+    private String type;
 
     private BottomNavigationView navView;
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemReselectedListener =
@@ -24,10 +24,15 @@ public class BlindHomeActivity extends AppCompatActivity {
                     switch (menuItem.getItemId()) {
                         case R.id.navigation_home:
                             startActivity(new Intent(BlindHomeActivity.this, BlindHomeActivity.class));
+                            finish();
                             break;
 
                         case R.id.navigation_settings:
-                            //   startActivity(new Intent(BlindHomeActivity.this,SettingsActivity.class));
+                            type = "blind";
+                            Intent i = new Intent(BlindHomeActivity.this, SettingsActivity.class);
+                            i.putExtra("type" , type );
+                            startActivity(i);
+                            finish();
                             break;
 
                         case R.id.navigation_logout:

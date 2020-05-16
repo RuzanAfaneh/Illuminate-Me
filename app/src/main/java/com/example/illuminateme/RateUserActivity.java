@@ -88,9 +88,9 @@ public class RateUserActivity extends AppCompatActivity {
                     }
                     catch (Exception e)
                     {
-                        rating = 5;
-                        calculateRating(rating);
-                        startActivity  ( new Intent(RateUserActivity.this , BlindHomeActivity.class));
+                        //rating = 5;
+                      //  calculateRating(rating);
+                       // startActivity  ( new Intent(RateUserActivity.this , BlindHomeActivity.class));
                         finish();
                     }
 
@@ -125,18 +125,21 @@ public class RateUserActivity extends AppCompatActivity {
     private void calculateRating(float rating) {
 
         tries++;
-        if(numberOfCalls==0)
-        {
-            volunteerRating = Float.toString((volunteerRatings+rating)/(numberOfCalls+2) );
+//        if(numberOfCalls==0)
+//        {
+//            volunteerRating = Float.toString((volunteerRatings+rating)/(numberOfCalls+2) );
+//
+//        }
+     //   else {
+        //    volunteerRating = Float.toString((volunteerRatings + rating) / (numberOfCalls + 1));
+//        }
 
-        }
-        else {
-            volunteerRating = Float.toString((volunteerRatings + rating) / (numberOfCalls + 1));
-        }
-
+        volunteerRating = Float.toString((volunteerRatings + rating) / (2));
         numberOfCall = String.valueOf(numberOfCalls+1);
         userRef.child("rating").setValue(volunteerRating.toString());
         userRef.child("numberOfCalls").setValue(numberOfCall);
+        startActivity  ( new Intent(RateUserActivity.this , BlindHomeActivity.class));
+        finish();
 
 
 

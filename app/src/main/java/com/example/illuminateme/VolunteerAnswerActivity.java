@@ -2,6 +2,7 @@ package com.example.illuminateme;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -25,10 +26,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
-import static android.view.Gravity.TOP;
-import static androidx.constraintlayout.widget.ConstraintSet.BOTTOM;
-import static androidx.constraintlayout.widget.ConstraintSet.END;
-import static androidx.constraintlayout.widget.ConstraintSet.START;
 
 public class VolunteerAnswerActivity extends AppCompatActivity {
 
@@ -69,6 +66,17 @@ public class VolunteerAnswerActivity extends AppCompatActivity {
         volunteer = userRef.child(receiverUserId).child("Ringing");
        availability = userRef.child(receiverUserId).child("availability");
         blind = userRef.child(senderUserId).child("Calling");
+
+        Handler handler = new Handler();
+
+        handler.postDelayed(new Runnable() {
+            public void run() {
+               cancelUserCall();
+                if(type.equals("volunteer"))
+                {availability.setValue("false");}
+                finish();
+            }
+        }, 40000);
 
 
         checker="";
@@ -195,7 +203,7 @@ msg = findViewById(R.id.textView3);
     private void setnewConstraint() {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(constraintLayout);
-        constraintSet.setHorizontalBias(R.id.cancel_call_V, .0f);
+        constraintSet.setHorizontalBias(R.id.cancel_call_V, 0.0f);
         //constraintSet.connect(R.id.cancel_call_V, END, R.id.constraint_layout, START);
         constraintSet.applyTo(constraintLayout);
     } //set on Constarint
@@ -205,7 +213,7 @@ msg = findViewById(R.id.textView3);
         super.onStart();
 
 
-
+ // on close
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -215,6 +223,8 @@ msg = findViewById(R.id.textView3);
 
                     if(!checker.equals("clicked"))
                     {
+                        //stopService(new Intent(VolunteerAnswerActivity.this, SoundService.class));
+
                         volunteer.removeValue();
                         blind.removeValue();
 
@@ -257,6 +267,7 @@ msg = findViewById(R.id.textView3);
 
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                stopService(new Intent(VolunteerAnswerActivity.this, SoundService.class));
 
 
                 if (dataSnapshot.child(receiverUserId).child("Ringing").hasChild("picked") && dataSnapshot.child(senderUserId).hasChild("Calling") &&type.equals("blind")) {

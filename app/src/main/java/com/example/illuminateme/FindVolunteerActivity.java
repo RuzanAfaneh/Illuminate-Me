@@ -1,5 +1,7 @@
 package com.example.illuminateme;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -72,7 +74,7 @@ private Boolean found = false ;
                             map.put("username", snapshot.child("username").getValue(String.class));
                             map.put("type", snapshot.child("type").getValue(String.class));
                             map.put("availability", snapshot.child("availability").getValue(String.class));
-                          map.put("rating", snapshot.child("rating").getValue(String.class));
+                            map.put("rating", snapshot.child("rating").getValue(String.class));
 
 
 
@@ -108,10 +110,23 @@ private Boolean found = false ;
 
                     if(found==false)
                     {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(FindVolunteerActivity.this);
+                        builder.setMessage("No One Is Available");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(FindVolunteerActivity.this,BlindHomeActivity.class);
+                                startActivity(intent);
+                                dialog.dismiss();
+                        }
+                    });
+                        AlertDialog alert = builder.create();
+                        alert.show();
 
-                        Toast.makeText(FindVolunteerActivity.this,"NO ONE WAS FOUND",Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(FindVolunteerActivity.this , BlindHomeActivity.class));
-                        finish();
+//                        Toast.makeText(FindVolunteerActivity.this,"NO ONE WAS FOUND",Toast.LENGTH_SHORT).show();
+//                        startActivity(new Intent(FindVolunteerActivity.this , BlindHomeActivity.class));
+//                        finish();
 
                     }
                 }
